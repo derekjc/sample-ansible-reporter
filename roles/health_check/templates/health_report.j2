@@ -1,0 +1,21 @@
+Health Check Report for {{ inventory_hostname }}
+Generated at: {{ ansible_date_time.iso8601 }}
+
+{% for check_name, result in health_results.items() %}
+Check: {{ check_name }}
+Status: {{ result.status }}
+{% if result.value is defined %}
+Value: {{ result.value }}
+{% endif %}
+{% if result.message is defined %}
+Message: {{ result.message }}
+{% endif %}
+---
+{% endfor %}
+
+Summary:
+Total Checks: {{ health_results | length }}
+Critical: {{ health_results.values() | selectattr("status", "equalto", "CRITICAL") | list | length }}
+Warning: {{ health_results.values() | selectattr("status", "equalto", "WARNING") | list | length }}
+OK: {{ health_results.values() | selectattr("status", "equalto", "OK") | list | length }}
+

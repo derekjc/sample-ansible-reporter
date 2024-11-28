@@ -1,0 +1,6 @@
+---
+- name: Run checks for {{ check_category.key }}
+  include_tasks: validate_check.yml
+  loop: "{{ check_category.value }}"
+  loop_control:
+    loop_var: check

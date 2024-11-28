@@ -1,0 +1,31 @@
+---
+health_checks:
+  system:
+    - name: "Check root filesystem usage"
+      module: ansible.builtin.shell
+      args:
+        cmd: "df -h / | tail -n1 | awk '{print $5}' | sed 's/%//'"
+      validate:
+        type: "numeric"
+        warning_threshold: 80
+        critical_threshold: 90
+      register: root_fs_usage
+
+    - name: "Check memory usage"
+      module: ansible.builtin.shell
+      args:
+        cmd: "free | grep Mem | awk '{print ($3/$2 * 100)}'"
+      validate:
+        type: "numeric"
+        warning_threshold: 80
+        critical_threshold: 90
+      register: memory_usage
+
+    - name: "Check if ModemManager is running"
+      module: ansible.builtin.service_facts
+      validate:
+        type: "service"
+        name: "ModemManager.service"
+        state: "running"
+      register: modem_manager
+

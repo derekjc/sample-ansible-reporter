@@ -1,0 +1,16 @@
+---
+- name: Run health checks
+  hosts: localhost
+  gather_facts: true
+  roles:
+    - health_check
+
+  post_tasks:
+    - name: Generate health report
+      template:
+        src: "roles/health_check/templates/health_report.j2"
+        dest: "/tmp/health_report_{{ inventory_hostname }}.txt"
+
+    - name: Display health report
+      debug:
+        msg: "{{ lookup('file', '/tmp/health_report_' + inventory_hostname + '.txt') }}"

@@ -1,0 +1,15 @@
+---
+- name: Initialize results dictionary
+  ansible.builtin.set_fact:
+    health_results: {}
+
+- name: Load health checks configuration
+  ansible.builtin.include_vars:
+    file: health_checks.yml
+    name: checks_config
+
+- name: Run health checks
+  ansible.builtin.include_tasks: run_check.yml
+  loop: "{{ checks_config.health_checks | dict2items }}"
+  loop_control:
+    loop_var: check_category

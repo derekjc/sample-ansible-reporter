@@ -1,0 +1,22 @@
+---
+- name: Execute shell check
+  ansible.builtin.shell: "{{ check.args.cmd }}"
+  register: shell_result
+  when: check.module == 'ansible.builtin.shell'
+  ignore_errors: true
+
+- name: Gather service facts
+  ansible.builtin.service_facts:
+  register: service_result
+  when: check.module == 'ansible.builtin.service_facts'
+  ignore_errors: true
+
+- name: Set appropriate result
+  ansible.builtin.set_fact:
+    check_result: "{{ shell_result if check.module == 'ansible.builtin.shell' else service_result }}"
+  when: shell_result is defined or service_result is defined
+
+- name: Evaluate check result
+  ansible.builtin.set_fact:
+    health_results: "{{ health_results | combine({(check.register): (check_result | evaluate_health(check.validate, check.register))}) }}"
+  when: check_result is defined
